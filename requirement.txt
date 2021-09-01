@@ -1,0 +1,58 @@
+Front page of website
+/home
+About the website
+/about
+
+#################### API ####################
+
+Signup
+/signup
+
+Login to the site
+/login
+
+Logout of the site
+/logout
+
+create a new Event/meetup
+POST /events
+
+cancel their Event
+DELETE /events/{eventID}
+
+update their event after which all the participants registered for the event should be sent a notification about the change
+PUT /events/{eventID}
+GET /notifications
+
+
+General visistors should be able to view all of the events
+GET /events
+
+General visistors should be able to view a particular event in detail after clicking on it from the list
+GET /events/{eventID}
+
+
+General visistors should be able to view the list of participants of a particular event
+GET /events/{eventID}/participants
+
+join any event
+POST events/{eventID}/participants
+
+leave any event that has been joined
+DELETE /events/{eventID}/participants
+
+
+comment on any event
+POST /events/{eventID}/comments
+
+view all the comments of an event
+GET /events/{eventID}/comments
+
+
+like any comment
+POST /events/{eventID}/comments/{commentID}/like
+
+Check if a comment is liked or not
+GET /events/{eventID}/comments/{commentID}/like
+
+
