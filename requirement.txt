@@ -6,10 +6,10 @@ About the website
 #################### API ####################
 
 Signup
-/signup
+POST /signup
 
 Login to the site
-/login
+POST /login
 
 Logout of the site
 /logout
@@ -56,3 +56,11 @@ Check if a comment is liked or not
 GET /events/{eventID}/comments/{commentID}/like
 
 
+############################# BACKEND ################################
+
+- Database Connection / ORM
+- Middleware Handling (alice)
+- Authentication (JWT)
+- Dynamic Routes (mux)
+- CSRF Protection
+- CORS
