@@ -8,12 +8,9 @@ import (
 
 	"github.com/cruedo/Eventor/auth"
 	"github.com/cruedo/Eventor/db"
+	"github.com/cruedo/Eventor/utils"
 	"golang.org/x/crypto/bcrypt"
 )
-
-type Msg struct {
-	Message string `json:"message"`
-}
 
 func isEmpty(args ...string) bool {
 	for _, v := range args {
@@ -27,7 +24,7 @@ func isEmpty(args ...string) bool {
 func exists(username, email string) bool {
 	// Check if the provided arguments exists as a record in the database.
 	// if they exist return true.
-	rows, err := db.Database.Query("SELECT * FROM Users WHERE Username = ? OR Email = ?", username, email)
+	rows, err := db.Database.Query("SELECT * FROM User WHERE Username = ? OR Email = ?", username, email)
 	if err != nil {
 		fmt.Println(err)
 		return true
@@ -80,34 +77,37 @@ func validateUser(r *http.Request) (db.User, error) {
 }
 
 func insertUser(u db.User) {
-	statement, _ := db.Database.Prepare("Insert into User (Username, Password, Email, City, Country, Phone) Values (?,?,?,?,?,?)")
-	statement.Exec(u.Username, u.HashedPassword, u.Email, u.City, u.Country, u.Phone)
+	pk := utils.GenerateUniqueId()
+	statement, err := db.Database.Prepare("Insert into User (UserID, Username, Password, Email, City, Country, Phone) Values (?,?,?,?,?,?,?)")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	_, err = statement.Exec(pk, u.Username, u.HashedPassword, u.Email, u.City, u.Country, u.Phone)
 }
 
 func Signup(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Content-Type", "application/json")
 	user, err := validateUser(r)
 	var message string
 
+	// WARNING : DO NOT CREATE A DATABASE RECORD  AND LOGIN (steps 1 & 2)
+	// IF THERE IS AN ERROR IN FORM VALUES.
 	if err != nil {
 		message = err.Error()
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintln(w, message)
-		return
+	} else {
+		message = "Successfully signed up"
+
+		// 1. Create a record for the user in the database.
+		insertUser(user)
+
+		// 2. Login the user (Create a Json Web Token)
+		auth.Login(w, r, user)
 	}
 
-	message = "Successfully signed up"
-
-	// WARNING : DO NOT CREATE A DATABASE RECORD  AND LOGIN (steps 1 & 2)
-	// IF THERE IS AN ERROR IN FORM VALUES (checked above)
-
-	// 1. Create a record for the user in the database.
-	insertUser(user)
-
-	// 2. Login the user (Create a Json Web Token)
-	auth.Login(w, r, user)
-
 	// 3. Respond with a success message
-	payload, _ := json.Marshal(Msg{Message: message})
+	payload, _ := json.Marshal(utils.Response{Message: message})
 	fmt.Fprint(w, string(payload))
 }

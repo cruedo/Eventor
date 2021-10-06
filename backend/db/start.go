@@ -2,6 +2,8 @@ package db
 
 import (
 	"database/sql"
+	"os"
+	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -12,8 +14,14 @@ var (
 )
 
 func Initialize() {
-	Database, err = sql.Open("sqlite3", "../test.db")
+	dir, _ := os.Getwd()
+	pth := filepath.Join(dir, "test.db")
+	Database, err = sql.Open("sqlite3", pth)
 	if err != nil {
 		panic(err)
 	}
+}
+
+func CleanUp() {
+	Database.Close()
 }

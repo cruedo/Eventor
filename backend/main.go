@@ -1,9 +1,15 @@
 package main
 
 import (
-	"fmt"
+	"github.com/cruedo/Eventor/db"
+	"github.com/cruedo/Eventor/server"
 )
 
 func main() {
-	fmt.Println("Hello world")
+	srv := server.Server{}
+	db.Initialize()
+	defer db.CleanUp()
+	srv.Initialize()
+	srv.Start()
+	srv.Run()
 }
