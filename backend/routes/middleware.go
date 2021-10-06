@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,8 +12,8 @@ import (
 	"github.com/cruedo/Eventor/utils"
 )
 
-func AttachUser(next http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func AttachUser(next http.Handler) http.Handler {
+	fxn := func(w http.ResponseWriter, r *http.Request) {
 		jwtCookie, err := r.Cookie("jwt")
 		user := db.User{}
 		var ptr *db.User
@@ -30,42 +31,31 @@ func AttachUser(next http.Handler) http.HandlerFunc {
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	}
+	return http.HandlerFunc(fxn)
 }
 
-func AlreadyAuthorized(next http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func AlreadyAuthorized(next http.Handler) http.Handler {
+	fxn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		usr := ctx.Value("User")
-		if usr == nil {
+		if usr == (*db.User)(nil) {
 			next.ServeHTTP(w, r)
 			return
 		}
-		http.Redirect(w, r, "/events", http.StatusTemporaryRedirect)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.Response{Message: "Already Loggedin"})
 	}
-}
-
-type loggingResponseWriter struct {
-	http.ResponseWriter
-	statusCode int
-}
-
-func NewLoggingResponseWriter(w http.ResponseWriter) *loggingResponseWriter {
-	return &loggingResponseWriter{w, http.StatusOK}
-}
-
-func (lrw *loggingResponseWriter) WriteHeader(code int) {
-	lrw.statusCode = code
-	lrw.ResponseWriter.WriteHeader(code)
+	return http.HandlerFunc(fxn)
 }
 
 func Logger(next http.Handler) http.Handler {
 	fxn := func(w http.ResponseWriter, r *http.Request) {
 		now := time.Now()
 
-		lrw := NewLoggingResponseWriter(w)
+		lrw := utils.NewLoggingResponseWriter(w)
 		next.ServeHTTP(lrw, r)
 
-		statusCode := lrw.statusCode
+		statusCode := lrw.StatusCode
 		log := fmt.Sprintf("%v %v %v %v", now.Format(utils.TimeLayout), r.Method, r.URL.String(), statusCode)
 		fmt.Println(log)
 	}

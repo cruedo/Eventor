@@ -14,11 +14,12 @@ type Server struct {
 
 func (server *Server) Initialize() {
 	server.r = mux.NewRouter()
-	server.r.Use(routes.Logger)
+	server.r.Use(routes.Logger, routes.AttachUser, routes.AlreadyAuthorized)
 }
 
 func (server *Server) Start() {
 	server.r.HandleFunc("/signup", routes.Signup).Methods("POST")
+	server.r.HandleFunc("/login", routes.Login).Methods("POST")
 }
 
 func (server *Server) Run() {

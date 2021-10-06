@@ -28,7 +28,7 @@ func Login(w http.ResponseWriter, r *http.Request, user db.User) {
 		Value:    token,
 		HttpOnly: true,
 		Secure:   true,
-		Expires: currentTime.Add(5 * time.Minute),
+		Expires:  currentTime.Add(5 * time.Minute),
 	}
 	http.SetCookie(w, &cookie)
 }

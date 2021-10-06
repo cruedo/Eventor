@@ -12,15 +12,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func isEmpty(args ...string) bool {
-	for _, v := range args {
-		if v == "" {
-			return true
-		}
-	}
-	return false
-}
-
 func exists(username, email string) bool {
 	// Check if the provided arguments exists as a record in the database.
 	// if they exist return true.
@@ -47,7 +38,7 @@ func validateUser(r *http.Request) (db.User, error) {
 
 	switch {
 	// username, email, city, country should NOT be null
-	case isEmpty(username, password1, password2, email, city, country):
+	case utils.IsEmpty(username, password1, password2, email, city, country):
 		// Return a 400 bad request !!
 		message = "Please fill up all of the details"
 
@@ -66,6 +57,7 @@ func validateUser(r *http.Request) (db.User, error) {
 
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password1), bcrypt.DefaultCost)
 	user := db.User{
+		UserID:         utils.GenerateUniqueId(),
 		Username:       username,
 		HashedPassword: string(hashedPassword),
 		Email:          email,
@@ -77,13 +69,12 @@ func validateUser(r *http.Request) (db.User, error) {
 }
 
 func insertUser(u db.User) {
-	pk := utils.GenerateUniqueId()
 	statement, err := db.Database.Prepare("Insert into User (UserID, Username, Password, Email, City, Country, Phone) Values (?,?,?,?,?,?,?)")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	_, err = statement.Exec(pk, u.Username, u.HashedPassword, u.Email, u.City, u.Country, u.Phone)
+	_, err = statement.Exec(u.UserID, u.Username, u.HashedPassword, u.Email, u.City, u.Country, u.Phone)
 }
 
 func Signup(w http.ResponseWriter, r *http.Request) {
