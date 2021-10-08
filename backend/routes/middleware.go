@@ -61,3 +61,17 @@ func Logger(next http.Handler) http.Handler {
 	}
 	return http.HandlerFunc(fxn)
 }
+
+func Protected(next http.Handler) http.Handler {
+	fxn := func(w http.ResponseWriter, r *http.Request) {
+		usr := r.Context().Value("User")
+		if usr == (*db.User)(nil) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(utils.Response{Message: "Please login"})
+			return
+		}
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fxn)
+}

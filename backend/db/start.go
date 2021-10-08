@@ -1,36 +1,52 @@
 package db
 
 import (
-	"database/sql"
 	"os"
 	"path/filepath"
 
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
-	Database *sql.DB
+	Database *sqlx.DB
 	err      error
 )
 
 const (
-	createTable = `
-		create table if not exists User (
-		UserID text primary key,
-		Username text not null unique,
-		Password text not null,
-		Email text not null unique,
-		City text,
-		Country text,
-		Phone text
-		) [WITHOUT ROWID];
+	createDatabase = `
+		CREATE TABLE IF NOT EXISTS User (
+			UserID text primary key,
+			Username text not null unique,
+			Password text not null,
+			Email text not null unique,
+			City text,
+			Country text,
+			Phone text
+		) WITHOUT ROWID;
+
+		CREATE TABLE IF NOT EXISTS Event (
+			EventID text primary key,
+			UserID text not null,
+			Title text not null,
+			Description text not null,
+			City text not null,
+			Country text not null,
+			Starttime datetime not null,
+			Latitude text not null,
+			Longitude text not null,
+			Fee integer not null,
+			Capacity integer not null,
+			Attendees integer not null,
+			foreign key(UserID) references User(UserID)
+		) WITHOUT ROWID;
 	`
 )
 
 func Initialize() {
 	dir, _ := os.Getwd()
 	pth := filepath.Join(dir, "test.db")
-	Database, err = sql.Open("sqlite3", pth)
+	Database, err = sqlx.Open("sqlite3", pth)
 	if err != nil {
 		panic(err)
 	}

@@ -18,8 +18,8 @@ type Event struct {
 	City        string
 	Country     string
 	StartTime   string // Time ?
-	EndTime     string // Time ?
-	GeoLocation string // Float ?
+	Latitude    string // Float ?
+	Longitude   string // Float ?
 	Fee         int
 	Capacity    int
 	Attendees   int
