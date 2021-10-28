@@ -32,14 +32,22 @@ const (
 			Description text not null,
 			City text not null,
 			Country text not null,
-			Starttime datetime not null,
+			StartTime datetime not null,
+			CreatedTime datetime not null,
 			Latitude text not null,
 			Longitude text not null,
 			Fee integer not null,
 			Capacity integer not null,
-			Attendees integer not null,
 			foreign key(UserID) references User(UserID)
 		) WITHOUT ROWID;
+
+		CREATE TABLE IF NOT EXISTS Participant (
+			PID text primary key,
+			UserID text not null,
+			EventID text not null
+			foreign key(UserID) references User(UserID)
+			foreign key(EventID) references Event(EventID)
+		) WITHOUT ROWID
 	`
 )
 

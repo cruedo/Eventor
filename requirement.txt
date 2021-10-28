@@ -20,10 +20,11 @@ POST /events
 cancel their Event
 DELETE /events/{eventID}
 
-update their event after which all the participants registered for the event should be sent a notification about the change
+update their event
 PUT /events/{eventID}
-GET /notifications
 
+Send notifications to all participants upon cancellation or updation of an event
+GET /notifications
 
 General visistors should be able to view all of the events
 GET /events

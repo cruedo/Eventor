@@ -38,7 +38,7 @@ func validateUser(r *http.Request) (db.User, error) {
 
 	switch {
 	// username, email, city, country should NOT be null
-	case utils.IsEmpty(username, password1, password2, email, city, country):
+	case utils.IsEmpty(username, password1, password2, email, country):
 		// Return a 400 bad request !!
 		message = "Please fill up all of the details"
 

@@ -6,13 +6,22 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/cruedo/Eventor/db"
 	"github.com/cruedo/Eventor/utils"
+	"github.com/gorilla/mux"
 )
 
 func GetEvents(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Database.Queryx("SELECT * FROM Event")
+	// w.Header().Set("Content-Type", "application/json")
+	qry := `
+	Select Event.*, Count(*) as Attendees from
+	Participant, Event
+	where Participant.EventID = Event.EventID
+	group by Participant.EventID;
+	`
+	rows, err := db.Database.Queryx(qry)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -21,16 +30,14 @@ func GetEvents(w http.ResponseWriter, r *http.Request) {
 
 	for rows.Next() {
 		var e db.Event
-		err := rows.Scan(&e)
+		err := rows.StructScan(&e)
 		if err != nil {
 			fmt.Println(err)
 		} else {
 			events = append(events, e)
 		}
 	}
-
-	// Send Proper Json
-	fmt.Fprintln(w, "Sent the events")
+	json.NewEncoder(w).Encode(utils.Response{Message: "Success", Data: events})
 }
 
 func validateEvent(r *http.Request) (db.Event, error) {
@@ -45,7 +52,7 @@ func validateEvent(r *http.Request) (db.Event, error) {
 	e.Longitude = r.Form.Get("longitude")
 	e.Fee, _ = strconv.Atoi(r.Form.Get("fee"))
 	e.Capacity, _ = strconv.Atoi(r.Form.Get("capacity"))
-	e.Attendees = 0
+	e.CreatedTime = strconv.FormatInt(time.Now().Unix(), 10)
 
 	message := ""
 
@@ -71,10 +78,29 @@ func PostEvent(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
 		e.EventID = utils.GenerateUniqueId()
-		e.UserID = r.Context().Value("User").(db.User).UserID
+		e.UserID = r.Context().Value("User").(*db.User).UserID
 		stmt, _ := db.Database.Prepare("INSERT INTO Event VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
-		stmt.Exec(e.EventID, e.UserID, e.Title, e.Description, e.City, e.Country, e.StartTime, e.Latitude, e.Longitude, e.Fee, e.Capacity, e.Attendees)
+		stmt.Exec(e.EventID, e.UserID, e.Title, e.Description, e.City, e.Country, e.StartTime, e.CreatedTime, e.Latitude, e.Longitude, e.Fee, e.Capacity)
+		MakeParticipant(e.UserID, e.EventID)
 	}
 
 	json.NewEncoder(w).Encode(utils.Response{Message: message})
+}
+
+func GetEvent(w http.ResponseWriter, r *http.Request) {
+	v := mux.Vars(r)
+	qry := `
+	Select Event.*, Count(*) as Attendees from
+	Participant, Event
+	where Participant.EventID = Event.EventID and Event.EventID = ?
+	group by Participant.EventID;
+	`
+	var E db.Event
+	message := "Success"
+	err := db.Database.QueryRowx(qry, v["eventid"]).StructScan(&E)
+	if err != nil {
+		message = "No event found"
+		w.WriteHeader(http.StatusNotFound)
+	}
+	json.NewEncoder(w).Encode(utils.Response{Message: message, Data: E})
 }

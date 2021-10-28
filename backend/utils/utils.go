@@ -8,11 +8,12 @@ import (
 )
 
 type Response struct {
-	Message string `json:"message"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 const (
-	TimeLayout = "[02/01/2006 15:04:05 -07:00]"
+	TimeLayout = "[02-01-2006 15:04:05 -07:00]"
 )
 
 func GenerateUniqueId() string {
