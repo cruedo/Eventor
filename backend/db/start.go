@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -57,6 +58,11 @@ func Initialize() {
 	Database, err = sqlx.Open("sqlite3", pth)
 	if err != nil {
 		panic(err)
+	}
+	stmt, _ := Database.Prepare("PRAGMA foreign_keys=on;")
+	_, err := stmt.Exec()
+	if err != nil {
+		fmt.Println(err)
 	}
 }
 

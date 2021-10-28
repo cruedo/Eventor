@@ -104,3 +104,35 @@ func GetEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(utils.Response{Message: message, Data: E})
 }
+
+func CancelEvent(w http.ResponseWriter, r *http.Request) {
+	uid := r.Context().Value("User").(*db.User).UserID
+	eid := mux.Vars(r)["eventid"]
+
+	var event_userid string
+	err := db.Database.QueryRow("select E.UserID from Event as E where E.EventID = ?", eid).Scan(&event_userid)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Println(err)
+		json.NewEncoder(w).Encode(utils.Response{Message: "Event does not exist"})
+		return
+	}
+	if event_userid != uid {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(utils.Response{Message: "You are not authorized for this request"})
+		return
+	}
+
+	var participants []string
+	rows, err := db.Database.Queryx("select P.UserID from Participant as P where P.EventID = ? and P.UserID != ?", eid, uid)
+
+	for rows.Next() {
+		var id string
+		rows.Scan(&id)
+		participants = append(participants, id)
+	}
+
+	stmt, _ := db.Database.Prepare("Delete from Event as E where E.EventID = ?")
+	stmt.Exec(eid)
+	json.NewEncoder(w).Encode(utils.Response{Message: "Successfully deleted event"})
+}

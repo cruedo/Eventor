@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/golang-jwt/jwt"
 )
@@ -40,7 +39,7 @@ func (jwtInfo *JWTclaim) ParseToken(tokenString string) error {
 	jwtInfo, ok = token.Claims.(*JWTclaim)
 
 	if ok && token.Valid {
-		fmt.Println(jwtInfo)
+		// fmt.Println(jwtInfo)
 		return nil
 	}
 

@@ -99,6 +99,5 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 3. Respond with a success message
-	payload, _ := json.Marshal(utils.Response{Message: message})
-	fmt.Fprint(w, string(payload))
+	json.NewEncoder(w).Encode(utils.Response{Message: message})
 }
