@@ -10,6 +10,7 @@ import (
 
 func Login(w http.ResponseWriter, r *http.Request, user db.User) {
 	currentTime := time.Now()
+	expiryTime := currentTime.Add(tokenLife * time.Minute)
 	// 1. Create a JWT token
 	claim := JWTclaim{
 		user.UserID,
@@ -17,7 +18,7 @@ func Login(w http.ResponseWriter, r *http.Request, user db.User) {
 		user.Country,
 		user.City,
 		jwt.StandardClaims{
-			ExpiresAt: currentTime.Add(5 * time.Minute).Unix(),
+			ExpiresAt: expiryTime.Unix(),
 		},
 	}
 	token := claim.GenerateToken()
@@ -28,7 +29,7 @@ func Login(w http.ResponseWriter, r *http.Request, user db.User) {
 		Value:    token,
 		HttpOnly: true,
 		Secure:   true,
-		Expires:  currentTime.Add(5 * time.Minute),
+		Expires:  expiryTime,
 	}
 	http.SetCookie(w, &cookie)
 }

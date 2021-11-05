@@ -8,6 +8,7 @@ import (
 
 const (
 	jwtTokenName = "jwt"
+	tokenLife    = 20 // In minutes
 )
 
 type JWTclaim struct {
