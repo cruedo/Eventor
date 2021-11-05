@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -68,6 +69,11 @@ func validateEvent(r *http.Request) (db.Event, error) {
 	return e, nil
 }
 
+func InsertEvent(e *db.Event) {
+	stmt, _ := db.Database.Prepare("INSERT INTO Event VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
+	stmt.Exec(e.EventID, e.UserID, e.Title, e.Description, e.City, e.Country, e.StartTime, e.CreatedTime, e.Latitude, e.Longitude, e.Fee, e.Capacity)
+}
+
 func PostEvent(w http.ResponseWriter, r *http.Request) {
 	message := "Successfully created event"
 
@@ -79,8 +85,9 @@ func PostEvent(w http.ResponseWriter, r *http.Request) {
 	} else {
 		e.EventID = utils.GenerateUniqueId()
 		e.UserID = r.Context().Value("User").(*db.User).UserID
-		stmt, _ := db.Database.Prepare("INSERT INTO Event VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
-		stmt.Exec(e.EventID, e.UserID, e.Title, e.Description, e.City, e.Country, e.StartTime, e.CreatedTime, e.Latitude, e.Longitude, e.Fee, e.Capacity)
+		// stmt, _ := db.Database.Prepare("INSERT INTO Event VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
+		// stmt.Exec(e.EventID, e.UserID, e.Title, e.Description, e.City, e.Country, e.StartTime, e.CreatedTime, e.Latitude, e.Longitude, e.Fee, e.Capacity)
+		InsertEvent(&e)
 		MakeParticipant(e.UserID, e.EventID)
 	}
 
@@ -135,4 +142,78 @@ func CancelEvent(w http.ResponseWriter, r *http.Request) {
 	stmt, _ := db.Database.Prepare("Delete from Event as E where E.EventID = ?")
 	stmt.Exec(eid)
 	json.NewEncoder(w).Encode(utils.Response{Message: "Successfully deleted event"})
+}
+
+func UpdateEventinDB(event_id, uid string, body *url.Values) error {
+	qry := `
+	Select * from Event
+	where EventID = ?
+	`
+	var e db.Event
+	var err error
+	row := db.Database.QueryRow(qry, event_id)
+	row.Scan(&e.EventID, &e.UserID, &e.Title, &e.Description, &e.City, &e.Country, &e.StartTime, &e.CreatedTime, &e.Latitude, &e.Longitude, &e.Fee, &e.Capacity)
+	if e.UserID != uid {
+		return errors.New("Not Authorized")
+	}
+	qry = `
+	Update Event set
+	Title = ?,
+	Description = ?,
+	City = ?,
+	Country = ?,
+	StartTime = ?,
+	Latitude = ?,
+	Longitude = ?,
+	Fee = ?,
+	Capacity = ?
+	`
+	stmt, _ := db.Database.Prepare(qry)
+	if body.Has("title") {
+		e.Title = body.Get("title")
+	}
+	if body.Has("description") {
+		e.Description = body.Get("description")
+	}
+	if body.Has("city") {
+		e.City = body.Get("city")
+	}
+	if body.Has("country") {
+		e.Country = body.Get("country")
+	}
+	if body.Has("starttime") {
+		e.StartTime = body.Get("starttime")
+	}
+	if body.Has("latitude") {
+		e.Latitude = body.Get("latitude")
+	}
+	if body.Has("longitude") {
+		e.Longitude = body.Get("longitude")
+	}
+	if body.Has("fee") {
+		e.Fee, err = strconv.Atoi(body.Get("fee"))
+		if err != nil {
+			return errors.New("Incorrect input fee")
+		}
+	}
+	if body.Has("capacity") {
+		e.Capacity, err = strconv.Atoi(body.Get("capacity"))
+		if err != nil {
+			return errors.New("Incorrect input capacity")
+		}
+	}
+	stmt.Exec(e.Title, e.Description, e.City, e.Country, e.StartTime, e.Latitude, e.Longitude, e.Fee, e.Capacity)
+	return nil
+}
+
+func UpdateEvent(w http.ResponseWriter, r *http.Request) {
+	uid := r.Context().Value("User").(*db.User).UserID
+	message := "Successfully updated event"
+	r.ParseForm()
+	err := UpdateEventinDB(mux.Vars(r)["eventid"], uid, &r.Form)
+	if err != nil {
+		message = err.Error()
+		w.WriteHeader(http.StatusBadRequest)
+	}
+	json.NewEncoder(w).Encode(utils.Response{Message: message})
 }
