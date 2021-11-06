@@ -19,4 +19,7 @@ func (server *Server) Start() {
 	server.r.Handle("/events/{eventid}/participants", alice.New(routes.Protected).ThenFunc(routes.JoinEvent)).Methods("POST")
 	server.r.Handle("/events/{eventid}/participants", alice.New(routes.Protected).ThenFunc(routes.LeaveEvent)).Methods("DELETE")
 	server.r.HandleFunc("/events/{eventid}/participants", routes.GetParticipants).Methods("GET")
+
+	server.r.Handle("/events/{eventid}/comments", alice.New(routes.Protected).ThenFunc(routes.WriteComment)).Methods("POST")
+	server.r.HandleFunc("/events/{eventid}/comments", routes.GetComments).Methods("GET")
 }

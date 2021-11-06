@@ -31,3 +31,11 @@ type Participant struct {
 	UserID  string `json:"userid" db:"UserID"`
 	EventID string `json:"eventid" db:"EventID"`
 }
+
+type Comment struct {
+	CommentID   string `json:"commentid" db:"CommentID"`
+	Text        string `json:"text" db:"Text"`
+	CreatedTime string `json:"createdTime" db:"CreatedTime"` // Float ?
+	UserID      string `json:"userid" db:"UserID"`
+	EventID     string `json:"eventid" db:"EventID"`
+}

@@ -56,7 +56,7 @@ func Logger(next http.Handler) http.Handler {
 		next.ServeHTTP(lrw, r)
 
 		statusCode := lrw.StatusCode
-		log := fmt.Sprintf("%v %v %v %v", now.Format(utils.TimeLayout), r.Method, r.URL.String(), statusCode)
+		log := fmt.Sprintf("%v %v %v %v", now.Format(utils.TimeLayout), r.Method, statusCode, r.URL.String())
 		fmt.Println(log)
 	}
 	return http.HandlerFunc(fxn)
