@@ -53,7 +53,8 @@ const (
 )
 
 func Initialize() {
-	dir, _ := os.Getwd()
+	dir, _ := os.Executable()
+	dir = filepath.Dir(dir)
 	pth := filepath.Join(dir, "test.db")
 	Database, err = sqlx.Open("sqlite3", pth)
 	if err != nil {
