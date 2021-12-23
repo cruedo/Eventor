@@ -18,6 +18,7 @@ func (server *Server) Initialize() {
 }
 
 func (server *Server) Run() {
+	server.r.NotFoundHandler = server.r.NewRoute().HandlerFunc(http.NotFound).GetHandler()
 	fmt.Println("Server is Running on port 8000...")
 	http.ListenAndServe(":8000", server.r)
 }
