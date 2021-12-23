@@ -3,6 +3,8 @@ import './App.css';
 import { BrowserRouter, Link, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { Bar, Foo, Home } from './components/Home';
 import { Navbar, Nav, Container } from 'react-bootstrap';
+import EventDetail from './components/EventDetail';
+import Login from './components/Login';
 
 function App() {
 
@@ -26,6 +28,10 @@ function App() {
               { Auth ? <Nav.Link as={Link} to="/foo">Foo</Nav.Link> : "" }
               <Nav.Link as={Link} to="/bar">Bar</Nav.Link>
             </Nav>
+            <Nav className="ml-auto">
+              <Nav.Link as={Link} to="/login">Login</Nav.Link>
+              <Nav.Link as={Link} to="/bar">Signup</Nav.Link>
+            </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
@@ -39,6 +45,8 @@ function App() {
             <Route path="/foo" element={<Foo />}/>
           </Route>
           <Route path="/bar" element={<Bar />}/>
+          <Route path="/login" element={<Login />}/>
+          <Route path="/events/:id" element={<EventDetail />}/>
         </Routes>
           
       </BrowserRouter>
