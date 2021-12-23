@@ -1,9 +1,7 @@
 import { Link } from 'react-router-dom'
-import { Card, Button } from 'react-bootstrap'
+import { Card } from 'react-bootstrap'
 import '../styles/EventDisplay.css'
 import stock_media from '../static/stock-media.jpg'
-import EventDetail from './EventDetail'
-import { Route } from 'react-router-dom'
 
 export default function EventDisplay({ info }) {
     let dt = new Date(info.startTime)
