@@ -27,9 +27,16 @@ func existsLogin(username, password string, u *db.User) bool {
 }
 
 func validateUserLogin(r *http.Request) (db.User, error) {
-	r.ParseForm()
-	username := r.Form.Get("username")
-	password := r.Form.Get("password")
+	// r.ParseForm()
+	// username := r.Form.Get("username")
+	// password := r.Form.Get("password")
+
+	form := map[string]string{}
+	json.NewDecoder(r.Body).Decode(&form)
+	username := form["username"]
+	password := form["password"]
+
+	fmt.Println(form)
 
 	message := ""
 	var user db.User
