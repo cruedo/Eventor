@@ -79,6 +79,7 @@ func Protected(next http.Handler) http.Handler {
 func CommonHeaders(next http.Handler) http.Handler {
 	fxn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 		next.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fxn)
