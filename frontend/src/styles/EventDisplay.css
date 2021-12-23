@@ -1,0 +1,24 @@
+.event-card {
+    display: flex;
+    justify-content: row;
+    border: 2px solid black;
+    border-radius: 10px;
+    width: 30vw;
+    margin: auto;
+}
+
+.info-card {
+    font-size: 1vw;
+    border: 1px solid green;
+    /* margin: 10px; */
+}
+
+.event-detail-card {
+    font-size: 1.5vw;
+    border: 1px solid green;
+    /* margin: 10px; */
+}
+
+.event-desc {
+    font-size: 2vw;
+}

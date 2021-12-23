@@ -1,0 +1,17 @@
+.event-container {
+    border: 1px solid black;
+    /* border-radius: 1rem; */
+    margin: 2vw;
+    width: 70%;
+}
+
+.image-div {
+    background-color: rosybrown;
+    height: 10rem;
+    width: 30vw;
+    border: 1px dotted blue;
+}
+
+.title-div {
+    margin: 1rem;
+}
