@@ -84,3 +84,14 @@ func CommonHeaders(next http.Handler) http.Handler {
 	}
 	return http.HandlerFunc(fxn)
 }
+
+func PreflightHandler(next http.Handler) http.Handler {
+	fxn := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "OPTIONS" {
+			w.Header().Set("Access-Control-Allow-Methods", "POST, PUT")
+			return
+		}
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fxn)
+}

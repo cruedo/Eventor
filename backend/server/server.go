@@ -14,7 +14,7 @@ type Server struct {
 
 func (server *Server) Initialize() {
 	server.r = mux.NewRouter()
-	server.r.Use(routes.Logger, routes.AttachUser, routes.CommonHeaders)
+	server.r.Use(routes.Logger, routes.AttachUser, routes.PreflightHandler, routes.CommonHeaders)
 }
 
 func (server *Server) Run() {

@@ -36,8 +36,6 @@ func validateUserLogin(r *http.Request) (db.User, error) {
 	username := form["username"]
 	password := form["password"]
 
-	fmt.Println(form)
-
 	message := ""
 	var user db.User
 
