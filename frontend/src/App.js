@@ -5,10 +5,13 @@ import { Bar, Foo, Home } from './components/Home';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import EventDetail from './components/EventDetail';
 import Login from './components/Login';
+import { useDispatch, useSelector } from 'react-redux'
+import { updateAuth } from './features/auth'
 
 function App() {
 
-  const [Auth, setAuth] = useState(false)
+  const Auth = useSelector(state => state.auth.authed)
+  const dispatch = useDispatch()
 
   function PrivateRoute() {
     return Auth ? <Outlet /> : <Navigate to="/" />
@@ -29,14 +32,14 @@ function App() {
               <Nav.Link as={Link} to="/bar">Bar</Nav.Link>
             </Nav>
             <Nav className="ml-auto">
-              <Nav.Link as={Link} to="/login">Login</Nav.Link>
-              <Nav.Link as={Link} to="/bar">Signup</Nav.Link>
+              { Auth ? "" : <Nav.Link as={Link} to="/login">Login</Nav.Link> }
+              { Auth ? "" : <Nav.Link as={Link} to="/bar">Signup</Nav.Link> }
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
 
-        <button onClick={() => setAuth(!Auth)}>Toggle Auth</button>
+        <button onClick={() => dispatch(updateAuth(!Auth))}>Toggle Auth</button>
         <br/>
 
         <Routes>
