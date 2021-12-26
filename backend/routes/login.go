@@ -62,5 +62,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	} else {
 		auth.Login(w, r, user)
 	}
-	json.NewEncoder(w).Encode(utils.Response{Message: message})
+	user.HashedPassword = ""
+	json.NewEncoder(w).Encode(utils.Response{Message: message, Data: user})
 }
