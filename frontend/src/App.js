@@ -7,6 +7,7 @@ import EventDetail from './components/EventDetail';
 import Login from './components/Login';
 import { useDispatch, useSelector } from 'react-redux'
 import { updateAuth } from './features/auth'
+import Logout from './components/Logout'
 
 function App() {
 
@@ -34,6 +35,7 @@ function App() {
             <Nav className="ml-auto">
               { Auth ? "" : <Nav.Link as={Link} to="/login">Login</Nav.Link> }
               { Auth ? "" : <Nav.Link as={Link} to="/bar">Signup</Nav.Link> }
+              { Auth ? <Nav.Link as={Link} to="/logout">Logout</Nav.Link> : ""}
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -49,6 +51,7 @@ function App() {
           </Route>
           <Route path="/bar" element={<Bar />}/>
           <Route path="/login" element={<Login />}/>
+          <Route path="/logout" element={<Logout />}/>
           <Route path="/events/:id" element={<EventDetail />}/>
         </Routes>
           
