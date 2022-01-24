@@ -1,17 +1,74 @@
 .event-container {
-    border: 1px solid black;
+    /* border: 1px solid black; */
     /* border-radius: 1rem; */
-    margin: 2vw;
-    width: 70%;
+    /* margin: 2vw; */
+    /* width: 70%; */
+    background-color: whitesmoke;
 }
 
 .image-div {
     background-color: rosybrown;
-    height: 10rem;
-    width: 30vw;
-    border: 1px dotted blue;
+}
+
+img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.no-mar {
+    margin: 0;
 }
 
 .title-div {
-    margin: 1rem;
+    margin-bottom: 1rem;
+}
+
+.font-bold {
+    font-weight: 700;
+    color: rgb(9, 19, 65);
+}
+
+.title {
+    padding: 1.5rem;
+    width: 100%;
+    text-align: left;
+    background-color: white;
+    border-bottom: 1px solid rgba(9, 19, 65, 0.15);
+}
+
+.hoster {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.desc {
+    margin-top: 1.25rem;
+    text-align: left;
+}
+
+.left-detail {
+    max-width: 42rem;
+}
+
+.right-detail {
+    max-width: 25rem;
+    width: 25rem;
+    height: 75rem;
+    margin-left: 1rem;
+}
+
+.main-detail {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: row;
+    margin-top: 2rem;
+}
+
+.white {
+    background-color: white;
+    border-radius: 5px;
+}
+
+.address {
+    margin-top: 1rem;
 }
