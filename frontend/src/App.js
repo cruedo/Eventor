@@ -1,7 +1,7 @@
 import './App.css';
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { Bar, Foo, Home } from './components/Home';
-import EventDetail from './components/EventDetail';
+import EventDetail from './components/EventDetail/EventDetail';
 import Login from './components/Login';
 import { useDispatch, useSelector } from 'react-redux'
 import { updateAuth } from './features/auth'

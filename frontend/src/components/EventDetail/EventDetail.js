@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom"
-import "../styles/EventDetail.css"
-import imag from "../static/stock-media.jpg"
+import "./EventDetail.css"
+import imag from "../../static/stock-media.jpg"
+import RightDetail from "./RightDetail"
+import dp from "../../static/dp.jpg"
 
 export default function EventDetail(props) {
 
@@ -31,6 +33,7 @@ export default function EventDetail(props) {
         <div className="event-container">
 
             <div className="title">
+                <div style={{margin: "auto", maxWidth: "1120px"}}>
                     <div>
                         {/* Event Details (date, time, fee, capacity, city, country) */}
                         {Event.createDate.toDateString()},  {Event.createDate.toLocaleTimeString()}
@@ -38,13 +41,19 @@ export default function EventDetail(props) {
                     <div className="title-div no-mar">
                         <h2 className="font-bold">{Event.title} {id}</h2>
                     </div>
-                    <div>Hosted by <br/> <span className="hoster">Mr. Duke</span></div>
+                    <div>
+                        <div className="dp">
+                            <img src={dp} className="dpp"/>
+                        </div>
+                        Hosted by <br/> <span className="hoster">Mr. Duke</span></div>
                     {/* <div className="loc">{Event.city}, {Event.country}</div> */}
+                </div>
+
             </div>
 
-            <div style={{display: "flex", "align-items": "center", "flex-direction": "column"}}>
+            <div style={{maxWidth: "1120px", margin: "auto"}}>
+                <div className="main-detail lrmq">
 
-                <div className="main-detail">
 
                     <div className="left-detail">
                         <div className="image-div">
@@ -57,20 +66,11 @@ export default function EventDetail(props) {
 
                         <div><h3>{Event.participants}</h3></div>
                         <div><h3>{Event.comments}</h3></div>
-
                     </div>
-
-                    <div className="right-detail">
-                        <div className="time-dur-here white">
-                            {Event.startDate.toDateString()} <br/>  {Event.startDate.toLocaleTimeString()}
-                        </div>
-                        <div className="address white">
-                            {Event.city} <br/> {Event.country}
-                        </div>
-                    </div>
-
+                
+                    <RightDetail/>
+                
                 </div>
-
             </div>
 
         </div>
