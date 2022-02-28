@@ -85,6 +85,7 @@ img {
 
 .right-card {
     padding: 0.8rem;
+    margin-bottom: 1rem;
 }
 
 .lrmq {
@@ -102,4 +103,15 @@ img {
         width: 100%;
         margin: auto;
     }
+}
+
+.reg-btn {
+    width: 100%;
+    background-color: rgb(122, 55, 55);
+    color: wheat;
+    border-style: none;
+    font-weight: 700;
+    font-size: large;
+    padding: 0;
+    height: 3rem;
 }
