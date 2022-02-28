@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useDispatch, useSelector } from "react-redux"
 import { updateUser } from "../features/user"
 import { updateAuth } from "../features/auth"
+import { Navigate } from "react-router-dom"
 
 export default function Login() {
     const [Username, setUsername] = useState("")
@@ -10,7 +11,8 @@ export default function Login() {
     const [Message, setMessage] = useState("")
 
     const dispatch = useDispatch()
-    const User = useSelector(state => state.user.user)
+    const User = useSelector((state) => state.user.user)
+    const authed = useSelector((state) => state.auth.authed)
 
 
     function handleSubmit(e) {
@@ -31,11 +33,17 @@ export default function Login() {
         })
     }
 
+    if(authed) {
+        return (
+            <Navigate to="/" />
+        )
+    }
+
     return (
         <div>
             <br/><br/><br/><br/>
             <b>{Message}</b>
-            <i>{JSON.stringify(User)}</i>
+            {/* <i>{JSON.stringify(User)}</i> */}
             <form onSubmit={handleSubmit}>
                 <label>
                     Username <br/>

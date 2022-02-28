@@ -1,11 +1,18 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
 import EventDisplay from "./EventDisplay"
+import EventCard from "./EventCard"
+import { useDispatch, useSelector } from "react-redux"
 
 function Home() {
     const [EventsList, setEventsList] = useState({
         data: [{}]
     })
+
+    const dispatch = useDispatch()
+    let authed = useSelector((state) => state.auth.authed)
+    let user = useSelector((state) => state.user.user)
+
 
     useEffect(() => {
         axios.get(`http://localhost:8000/events`)
@@ -20,7 +27,9 @@ function Home() {
 
     return (
         <div>
+            {authed ? `Current User: ${user.username}` : "No User is logged in"}
             <EventDisplay info={EventsList.data[0]}/>
+            <EventCard info={EventsList.data[0]}/>
         </div>
     )
 }
