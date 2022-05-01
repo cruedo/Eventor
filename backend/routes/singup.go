@@ -25,14 +25,18 @@ func exists(username, email string) bool {
 }
 
 func validateUser(r *http.Request) (db.User, error) {
+
+	form := map[string]string{}
+	json.NewDecoder(r.Body).Decode(&form)
+
 	r.ParseForm()
-	username := r.Form.Get("username")
-	password1 := r.Form.Get("password1")
-	password2 := r.Form.Get("password2")
-	email := r.Form.Get("email")
-	city := r.Form.Get("city")
-	country := r.Form.Get("country")
-	phone := r.Form.Get("phone")
+	username := form["username"]
+	password1 := form["password1"]
+	password2 := form["password2"]
+	email := form["email"]
+	city := form["city"]
+	country := form["country"]
+	phone := form["phone"]
 
 	message := ""
 
@@ -99,5 +103,5 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 3. Respond with a success message
-	json.NewEncoder(w).Encode(utils.Response{Message: message})
+	json.NewEncoder(w).Encode(utils.Response{Message: message, Data: user})
 }
