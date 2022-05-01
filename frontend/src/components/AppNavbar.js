@@ -19,7 +19,7 @@ export default function AppNavbar() {
             </Nav>
             <Nav className="ml-auto">
               { Auth ? "" : <Nav.Link as={Link} to="/login">Login</Nav.Link> }
-              { Auth ? "" : <Nav.Link as={Link} to="/bar">Signup</Nav.Link> }
+              { Auth ? "" : <Nav.Link as={Link} to="/signup">Signup</Nav.Link> }
               { Auth ? <Nav.Link as={Link} to="/logout">Logout</Nav.Link> : ""}
             </Nav>
           </Navbar.Collapse>

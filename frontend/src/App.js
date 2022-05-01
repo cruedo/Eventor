@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { updateAuth } from './features/auth'
 import Logout from './components/Logout'
 import AppNavbar from './components/AppNavbar';
+import Signup from './components/Signup';
 
 function App() {
 
@@ -33,6 +34,7 @@ function App() {
           </Route>
           <Route path="/bar" element={<Bar />}/>
           <Route path="/login" element={<Login />}/>
+          <Route path="/signup" element={<Signup />}/>
           <Route path="/logout" element={<Logout />}/>
           <Route path="/events/:id" element={<EventDetail />}/>
         </Routes>
