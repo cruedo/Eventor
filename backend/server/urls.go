@@ -22,4 +22,6 @@ func (server *Server) Start() {
 
 	server.r.Handle("/events/{eventid}/comments", alice.New(routes.Protected).ThenFunc(routes.WriteComment)).Methods("POST")
 	server.r.HandleFunc("/events/{eventid}/comments", routes.GetComments).Methods("GET")
+
+	server.r.HandleFunc("/upload", routes.Upload).Methods("POST")
 }

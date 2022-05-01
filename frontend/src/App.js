@@ -8,6 +8,7 @@ import { updateAuth } from './features/auth'
 import Logout from './components/Logout'
 import AppNavbar from './components/AppNavbar';
 import Signup from './components/Signup';
+import FileUpload from './components/FileUpload';
 
 function App() {
 
@@ -36,6 +37,7 @@ function App() {
           <Route path="/login" element={<Login />}/>
           <Route path="/signup" element={<Signup />}/>
           <Route path="/logout" element={<Logout />}/>
+          <Route path="/upload" element={<FileUpload />}/>
           <Route path="/events/:id" element={<EventDetail />}/>
         </Routes>
           

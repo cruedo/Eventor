@@ -16,6 +16,7 @@ export default function AppNavbar() {
               <Nav.Link as={Link} to="/">Home</Nav.Link>
               { Auth ? <Nav.Link as={Link} to="/foo">Foo</Nav.Link> : "" }
               <Nav.Link as={Link} to="/bar">Bar</Nav.Link>
+              <Nav.Link as={Link} to="/upload">UPLOAD</Nav.Link>
             </Nav>
             <Nav className="ml-auto">
               { Auth ? "" : <Nav.Link as={Link} to="/login">Login</Nav.Link> }
