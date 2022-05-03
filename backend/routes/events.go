@@ -42,17 +42,19 @@ func GetEvents(w http.ResponseWriter, r *http.Request) {
 }
 
 func validateEvent(r *http.Request) (db.Event, error) {
-	r.ParseForm()
+	form := map[string]string{}
+	json.NewDecoder(r.Body).Decode(&form)
+
 	var e db.Event
-	e.Title = r.Form.Get("title")
-	e.Description = r.Form.Get("description")
-	e.City = r.Form.Get("city")
-	e.Country = r.Form.Get("country")
-	e.StartTime = r.Form.Get("starttime")
-	e.Latitude = r.Form.Get("latitude")
-	e.Longitude = r.Form.Get("longitude")
-	e.Fee, _ = strconv.Atoi(r.Form.Get("fee"))
-	e.Capacity, _ = strconv.Atoi(r.Form.Get("capacity"))
+	e.Title = form["title"]
+	e.Description = form["description"]
+	e.City = form["city"]
+	e.Country = form["country"]
+	e.StartTime = form["starttime"]
+	e.Latitude = form["latitude"]
+	e.Longitude = form["longitude"]
+	e.Fee, _ = strconv.Atoi(form["fee"])
+	e.Capacity, _ = strconv.Atoi(form["capacity"])
 	e.CreatedTime = strconv.FormatInt(time.Now().Unix(), 10)
 
 	message := ""

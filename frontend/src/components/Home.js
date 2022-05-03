@@ -29,7 +29,12 @@ function Home() {
         <div>
             {authed ? `Current User: ${user.username}` : "No User is logged in"}
             <EventDisplay info={EventsList.data[0]}/>
-            <EventCard info={EventsList.data[0]}/>
+
+            {
+                EventsList.data.map(x => {
+                    return <EventCard info={x} />
+                })
+            }
         </div>
     )
 }

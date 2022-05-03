@@ -3,8 +3,12 @@ import "./EventDetail.css"
 import imag from "../../static/stock-media.jpg"
 import RightDetail from "./RightDetail"
 import dp from "../../static/dp.jpg"
+import { useEffect, useState } from "react"
+import axios from "axios"
 
 export default function EventDetail(props) {
+
+    const [Participants, setParticipants] = useState([{}])
 
     const { id } = useParams()
     let now = new Date()
@@ -28,6 +32,17 @@ export default function EventDetail(props) {
         city: "New York",
         country: "United States"
     }
+
+    useEffect(() => {
+        axios.get(`/events/${id}/participants`)
+        .then(res => {
+            setParticipants(res.data.data)
+            console.log(res.data.data)
+        })
+        .catch(err => {
+            console.log(err)
+        })
+    }, [])
 
     return (
         <div className="event-container">
@@ -68,7 +83,7 @@ export default function EventDetail(props) {
                         <div><h3>{Event.comments}</h3></div>
                     </div>
                 
-                    <RightDetail/>
+                    <RightDetail id={id} participants={Participants}/>
                 
                 </div>
             </div>

@@ -8,6 +8,7 @@ import { updateAuth } from './features/auth'
 import Logout from './components/Logout'
 import AppNavbar from './components/AppNavbar';
 import Signup from './components/Signup';
+import CreateEvent from './components/CreateEvent';
 
 function App() {
 
@@ -31,6 +32,7 @@ function App() {
           <Route path="/" element={<Home />}/>
           <Route element={<PrivateRoute />}>
             <Route path="/foo" element={<Foo />}/>
+            <Route path="/createEvent" element={<CreateEvent />}/>
           </Route>
           <Route path="/bar" element={<Bar />}/>
           <Route path="/login" element={<Login />}/>

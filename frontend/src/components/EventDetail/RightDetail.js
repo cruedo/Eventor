@@ -1,7 +1,7 @@
 import './EventDetail.css'
 import RegisterButton from './RegisterButton'
 
-export default function RightDetail() {
+export default function RightDetail({ id, participants }) {
     let now = new Date()
     let later = now
     later.setDate(later.getDate() + 2)
@@ -76,8 +76,9 @@ export default function RightDetail() {
                 </div>
             </div>
 
+            { JSON.stringify(participants) }
 
-            <RegisterButton />
+            <RegisterButton id={id} participants={participants}/>
 
         </div>
     )
