@@ -16,14 +16,26 @@ func MakeParticipant(uid string, eid string) {
 	stmt.Exec(utils.GenerateUniqueId(), uid, eid)
 }
 
+func participantExists(uid, eid string) bool {
+	rows, err := db.Database.Query("SELECT * FROM Participant WHERE UserID = ? AND EventID = ?", uid, eid)
+	if err != nil {
+		fmt.Println(err)
+		return true
+	}
+	defer rows.Close()
+	return rows.Next()
+}
+
 func JoinEvent(w http.ResponseWriter, r *http.Request) {
-	uid, eid := "", mux.Vars(r)["eventid"]
+	uid, eid := r.Context().Value("User").(*db.User).UserID, mux.Vars(r)["eventid"]
 	message := "Successfully joined the event"
 	if utils.IsEmpty(eid) {
 		message = "No event provided"
 		w.WriteHeader(http.StatusBadRequest)
+	} else if participantExists(uid, eid) {
+		message = "Already registered for the event"
+		w.WriteHeader(http.StatusBadRequest)
 	} else {
-		uid = r.Context().Value("User").(*db.User).UserID
 		MakeParticipant(uid, eid)
 	}
 	json.NewEncoder(w).Encode(utils.Response{Message: message})
