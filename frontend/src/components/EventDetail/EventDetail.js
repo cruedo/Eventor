@@ -5,11 +5,12 @@ import RightDetail from "./RightDetail"
 import dp from "../../static/dp.jpg"
 import { useEffect, useState } from "react"
 import axios from "axios"
+import Comment from "./Comment"
+import Participant from "./Participant"
 
 export default function EventDetail(props) {
 
-    const [Participants, setParticipants] = useState([{}])
-
+    const [ EventData, setEventData ] = useState(false)
     const { id } = useParams()
     let now = new Date()
     let later = now
@@ -34,13 +35,14 @@ export default function EventDetail(props) {
     }
 
     useEffect(() => {
-        axios.get(`/events/${id}/participants`)
+        axios.get(`/events/${id}`)
         .then(res => {
-            setParticipants(res.data.data)
-            console.log(res.data.data)
+            let data = res.data.data
+            console.log(data)
+            setEventData(data)
         })
         .catch(err => {
-            console.log(err)
+            console.log("Error while fetching event !", err)
         })
     }, [])
 
@@ -79,11 +81,13 @@ export default function EventDetail(props) {
                             {Event.description}
                         </div>
 
-                        <div><h3>{Event.participants}</h3></div>
-                        <div><h3>{Event.comments}</h3></div>
+                        {/* <div><h3>{Event.participants}</h3></div> */}
+                        {/* <div><h3>{Event.comments}</h3></div> */}
+                        <Participant id={id} />
+                        <Comment id={id}/>
                     </div>
                 
-                    <RightDetail id={id} participants={Participants}/>
+                    <RightDetail id={id} EventData={EventData}/>
                 
                 </div>
             </div>

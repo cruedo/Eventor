@@ -111,6 +111,22 @@ func GetEvent(w http.ResponseWriter, r *http.Request) {
 		message = "No event found"
 		w.WriteHeader(http.StatusNotFound)
 	}
+
+	E.Registered = false
+	currentUser := r.Context().Value("User").(*db.User)
+	if currentUser != nil {
+		qryCheckParticipation := `
+		Select * from Participant where EventID = ? and UserID = ?
+		`
+		rows, err := db.Database.Query(qryCheckParticipation, v["eventid"], currentUser.UserID)
+		if err != nil {
+			fmt.Println(err.Error())
+		} else {
+			E.Registered = rows.Next()
+		}
+		defer rows.Close()
+	}
+
 	json.NewEncoder(w).Encode(utils.Response{Message: message, Data: E})
 }
 

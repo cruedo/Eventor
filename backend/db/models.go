@@ -24,6 +24,7 @@ type Event struct {
 	Fee         int    `json:"fee,omitempty" db:"Fee"`
 	Capacity    int    `json:"capacity,omitempty" db:"Capacity"`
 	Attendees   int    `json:"attendees,omitempty" db:"Attendees"`
+	Registered  bool   `json:"registered" db:"Registered"`
 }
 
 type Participant struct {

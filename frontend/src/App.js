@@ -25,8 +25,8 @@ function App() {
 
         <AppNavbar />
 
-        <button onClick={() => dispatch(updateAuth(!Auth))}>Toggle Auth</button>
-        <br/>
+        {/* <button onClick={() => dispatch(updateAuth(!Auth))}>Toggle Auth</button>
+        <br/> */}
 
         <Routes>
           <Route path="/" element={<Home />}/>

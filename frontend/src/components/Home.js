@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux"
 
 function Home() {
     const [EventsList, setEventsList] = useState({
-        data: [{}]
+        data: []
     })
 
     const dispatch = useDispatch()
@@ -28,11 +28,11 @@ function Home() {
     return (
         <div>
             {authed ? `Current User: ${user.username}` : "No User is logged in"}
-            <EventDisplay info={EventsList.data[0]}/>
+            {/* <EventDisplay info={EventsList.data[0]}/> */}
 
             {
-                EventsList.data.map(x => {
-                    return <EventCard info={x} />
+                EventsList.data.map((x, index) => {
+                    return <EventCard key={index} info={x} />
                 })
             }
         </div>
