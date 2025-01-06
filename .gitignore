@@ -1,3 +1,7 @@
 *.exe
-*.db
 *.out
+
+*.db
+*.sqlite3
+
+__pycache__
