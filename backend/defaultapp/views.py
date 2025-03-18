@@ -76,7 +76,7 @@ def signup(req):
 
 
 
-@api_view()
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 # @authentication_classes([SessionAuthentication])
 def logout(req):
@@ -152,12 +152,11 @@ class EventFormSlz(serializers.ModelSerializer):
 
     class Meta:
         model = Events
-        fields = ["user", "title", "description", "city", "country", "start_datetime", "created_datetime", "modified_datetime", "latitude", "longitude", "fees", "capacity", "address", "attendees"]
+        fields = ["id", "user", "title", "description", "city", "country", "start_datetime", "created_datetime", "modified_datetime", "latitude", "longitude", "fees", "capacity", "address", "attendees"]
         extra_kwargs = {
-            "capacity": {"default": 0},
             "fees": {"default": 0},
         }
-        read_only_fields = ["created_datetime", "modified_datetime"]
+        read_only_fields = ["created_datetime", "modified_datetime", "id", "user"]
 
 class EventsView(APIView):
 
@@ -176,13 +175,35 @@ class EventsView(APIView):
         slz = EventFormSlz(es, many=True)
         return Response(slz.data)
 
+
 class EventView(APIView):
 
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get(self, req, eid):
-        es = Events.objects.select_related("user").annotate(attendees=Count("participants")).get(id=eid)
+        try:
+            es = Events.objects.select_related("user").annotate(attendees=Count("participants")).get(id=eid)
+        except Events.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         slz = EventFormSlz(es)
-        return Response(slz.data)
+        joined = Participants.objects.filter(event=eid, user=req.user if req.user.is_authenticated else None).exists()
+        return Response({**slz.data, "joined": joined})
     
+    def put(self, req, eid):
+        
+        try:
+            e = Events.objects.get(id=eid)
+        except Events.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        if e.user != req.user:
+            return Response({"message": "Cannot modify event, permission denied"}, status=status.HTTP_403_FORBIDDEN)
+        
+        slz = EventFormSlz(e, data=req.data, partial=True)
+        if not slz.is_valid():
+            return Response(slz.errors, status=status.HTTP_400_BAD_REQUEST)
+        slz.save()
+        return Response(slz.validated_data)
 
 
 class ParticipantFormSlz(serializers.ModelSerializer):
@@ -194,6 +215,10 @@ class ParticipantFormSlz(serializers.ModelSerializer):
         u = self.context['request'].user
         if Participants.objects.filter(user=u, event=vdata['event']).exists():
             raise serializers.ValidationError("The user is already registered for the event")
+        
+        participant_count = Participants.objects.filter(event=vdata["event"]).count()
+        if vdata["event"].capacity != None and participant_count >= vdata["event"].capacity:
+            raise serializers.ValidationError("Event cannot accept any more participants, capacity reached")
         return vdata
 
 
@@ -216,6 +241,10 @@ class ParticipantsView(APIView):
     
     def get(self, req, eid):
         # u = Participants.objects.filter(event_id=eid).select_related('user')
+        try:
+            e=Events.objects.get(id=eid)
+        except Events.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         u = Users.objects.filter(participants__event_id=eid)
         s = UserSlz(u, many=True)
         return Response(s.data)
@@ -227,9 +256,10 @@ class CommentFormSlz(serializers.ModelSerializer):
     votes = serializers.IntegerField(read_only=True)
     class Meta:
         model = Comments
-        fields = ["user", "event", "text", "created_datetime", "votes"]
+        fields = ["id", "user", "event", "text", "created_datetime", "votes"]
         extra_kwargs = {
             "created_datetime": {"read_only": True},
+            "id": {"read_only": True},
             "event": {"write_only": True},
         }
 
@@ -246,17 +276,29 @@ class CommentsView(APIView):
         req.data["event"] = eid
         s = CommentFormSlz(data=req.data, context={"request": req})
         if not s.is_valid():
-            return Response(s.errors)
-        s.save()
-        return Response({"message": "Successfully posted the comment"})
+            return Response(s.errors, status=status.HTTP_400_BAD_REQUEST)
+        c = s.save()
+        return Response({"message": "Successfully posted the comment", "comment": {**CommentFormSlz(c).data, "votes": 0, "vote_type": 0}})
     
     def get(self, req, eid):
+        
         c = Comments.objects.filter(event=eid)
-
         cc = c.annotate(votes=Count("commentvotes", filter=Q(commentvotes__is_upvote=True))-Count("commentvotes", filter=Q(commentvotes__is_upvote=False)))
-        # print(str(cc.query))
-        # print(type(c), type(cc))
+
+
+        v = CommentVotes.objects.filter(user=req.user if req.user.is_authenticated else None, comment__event=eid)
+        v = CommentVotesFormSlz(v, many=True)
+        dv: dict = {i["comment"]: i for i in v.data}
+
+
         s = CommentFormSlz(cc, many=True)
+        for i in s.data:
+            ele = dv.get(i["id"])
+            if ele is not None:
+                i["vote_type"] = 1 if ele["is_upvote"] else -1
+            else:
+                i["vote_type"] = 0
+        
         return Response(s.data)
     
 
@@ -270,7 +312,7 @@ class CommentVotesFormSlz(serializers.ModelSerializer):
         model = CommentVotes
         fields = ["is_upvote", "comment", "event"]
         extra_kwargs = {
-            "comment": {"write_only": True},
+            "event": {"write_only": True},
         }
 
     def validate(self, vdata):
@@ -298,4 +340,60 @@ class CommentVotesView(APIView):
             return Response(s.errors)
         s.save()
         return Response({"message": "Successfully voted."})
-        
+
+
+class UpdateUserSlz(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "first_name", "last_name"]
+
+class UpdateUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, req):
+        s=UpdateUserSlz(req.user)
+        return Response(s.data)
+    
+    def put(self, req):
+        s = UpdateUserSlz(req.user, data=req.data, partial=True)
+        if not s.is_valid():
+            return Response(s.errors, status=status.HTTP_400_BAD_REQUEST)
+        s.save()
+        return Response({"message": s.validated_data})
+
+class UpdatePasswordSlz(serializers.ModelSerializer):
+    password_new = serializers.CharField(write_only=True)
+    password_new2 = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ["password", "password_new", "password_new2"]
+    
+    def validate(self, vdata):
+        if vdata['password_new'] != vdata['password_new2']:
+            raise serializers.ValidationError("Confirmed password must match new password.")
+        return vdata
+    
+    def validate_password(self, val):
+        u: User = self.context["request"].user
+        if not u.check_password(val):
+            raise serializers.ValidationError("Incorrect Password")
+        return val
+    
+    def update(self, instance: User, vdata):
+        instance.set_password(vdata["password_new"])
+        instance.save()
+        return instance
+
+class UpdatePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    
+    def put(self, req):
+        s = UpdatePasswordSlz(req.user, data=req.data, context={"request": req})
+        if not s.is_valid():
+            return Response(s.errors, status=status.HTTP_400_BAD_REQUEST)
+        s.save()
+        auth.update_session_auth_hash(req, req.user)
+        return Response({"message": "Succesfully changed password"})

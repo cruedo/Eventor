@@ -26,7 +26,7 @@ class Events(models.Model):
     latitude = models.DecimalField(decimal_places=7, max_digits=11, null=True, blank=True)
     longitude = models.DecimalField(decimal_places=7, max_digits=11, null=True, blank=True)
     fees = models.DecimalField(decimal_places=3, max_digits=10)
-    capacity = models.PositiveIntegerField(blank=True, default=13)
+    capacity = models.PositiveIntegerField(blank=True, null=True)
     address = models.CharField(max_length=100, blank=True)
 
 class Participants(models.Model):
