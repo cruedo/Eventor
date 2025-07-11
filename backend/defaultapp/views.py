@@ -12,7 +12,7 @@ from django.db.models import Count, Q
 from rest_framework.decorators import api_view, APIView, permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.authentication import SessionAuthentication
 
 import traceback
@@ -99,7 +99,19 @@ class Login(APIView):
         auth.login(req, u)
         return Response({"message": "successfully logged in"})
 
-
+from knox.views import LoginView
+from knox.auth import TokenAuthentication
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+class kLoginView(LoginView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [AllowAny]
+    
+    def post(self, request, format=None):
+        serializer = AuthTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        auth.login(request, user)
+        return super(kLoginView, self).post(request, format=None)
 
 def index(request):
     if request.method == "POST":
@@ -349,6 +361,7 @@ class UpdateUserSlz(serializers.ModelSerializer):
         fields = ["username", "email", "first_name", "last_name"]
 
 class UpdateUserView(APIView):
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, req):

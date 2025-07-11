@@ -1,12 +1,17 @@
 from django.urls import path
+import knox.views
 
 from . import views
 
+import knox
+
 urlpatterns = [
     path("abc/", views.index, name="index"),
-    path("login/", view=views.Login.as_view()),
+    # path("login/", view=views.Login.as_view()),
+    path("login/", view=views.kLoginView.as_view()),
     path("sign-up/", view=views.signup),
-    path("logout/", view=views.logout),
+    # path("logout/", view=views.logout),
+    path("logout/", view=knox.views.LogoutView.as_view()),
     path("events/", view=views.EventsView.as_view()),
     path("events/<int:eid>/", view=views.EventView.as_view()),
     path("events/<int:eid>/participants/", view=views.ParticipantsView.as_view()),
