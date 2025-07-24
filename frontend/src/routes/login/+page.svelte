@@ -29,9 +29,8 @@
         loadStatus = false
 
         if(res.ok) {
-            store.logged_in = true
             store.user = username
-            Cookies.set('user', username, {expires: 7, path: '/'})
+            // Cookies.set('user', username, {expires: 7, path: '/'})
             goto('/')
             // Cookies.set('logged_in', 'true', { expires: 7, path: '/' })
         } else {

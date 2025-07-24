@@ -1,5 +1,6 @@
 <script>
     import { page } from "$app/state";
+    import Cookies from 'js-cookie'
     
     let { comments = $bindable() } = $props()
     let posting_comment = $state('')
@@ -14,7 +15,10 @@
         // comments.push({user: {username: 'someone'}, created_datetime: new Date(), text: posting_comment, votes: 5});
         const res = await fetch(`/api/events/${page.params.eid}/comments/`, {
             method: 'POST',
-            headers: {'content-type': 'application/json'},
+            headers: {
+                'content-type': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken'),
+            },
             body: JSON.stringify({text: posting_comment}),
             credentials: 'same-origin'
         })

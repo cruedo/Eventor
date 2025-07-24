@@ -14,13 +14,16 @@
 
         const res = await fetch(`/api/logout/`, {
             method: 'POST',
-            credentials: 'same-origin'
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': Cookies.get('csrftoken'),
+            }
         })
 
         const body = await res.json()
 
         if(res.ok) {
-            store.logged_in = false
+            store.user = null
             goto('/login')
         } else {
             alert(JSON.stringify(body))
@@ -37,7 +40,7 @@
         <li><a href="/about">About</a></li>
     </ul>
     <ul class="nav-right">
-        {#if store.logged_in }
+        {#if store.user }
             <li><p>{store.user}</p></li>
             <li><a href="/create-event">Create Event</a></li>
             <li><a href="/account">Account</a></li>

@@ -4,6 +4,7 @@
     import CommentForm from "./CommentForm.svelte";
     import EventForm from "$lib/EventForm.svelte";
     import MapComp from "$lib/MapComp.svelte";
+    import Cookies from 'js-cookie';
 
     /** @type {{ data: import('./$types').PageData }} */
     let { data }= $props();
@@ -19,7 +20,7 @@
    * @param {any} e
    */
     async function handleJoin(e) {
-        if(!store.logged_in) {
+        if(!store.user) {
             alert("Login Required !")
             return
         }
@@ -28,7 +29,10 @@
         
         const res = await fetch(url, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken'),
+            },
             credentials: 'same-origin',
         })
 
@@ -85,7 +89,7 @@
 
 
 
-{#if store.logged_in}
+{#if store.user}
     <CommentForm bind:comments />
 {/if}
 

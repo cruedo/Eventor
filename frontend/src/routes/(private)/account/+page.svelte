@@ -1,8 +1,9 @@
 <script>
 // @ts-nocheck
 
-  import { error } from '@sveltejs/kit';
-  import { onMount } from 'svelte';
+    import { error } from '@sveltejs/kit';
+    import { onMount } from 'svelte';
+    import Cookies from 'js-cookie';
 
     /** @type {{ data: import('./$types').PageData }} */
     let { data } = $props();
@@ -26,7 +27,10 @@
         const url = "/api/accounts/"
         const res = await fetch(url, {
             method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken'),
+            },
             credentials: 'same-origin',
             body: JSON.stringify(updatedAccount)
         })
@@ -65,7 +69,10 @@
 
         const res = await fetch(url, {
             method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken'),
+            },
             credentials: 'same-origin',
             body: JSON.stringify(password)
         })

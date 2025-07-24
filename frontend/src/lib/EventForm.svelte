@@ -1,6 +1,7 @@
 <script>
     import { goto } from '$app/navigation';
     import MapComp from './MapComp.svelte';
+    import Cookies from 'js-cookie';
 
     let { oevent = $bindable(undefined), okSubmit } = $props();
     let is_create = !oevent
@@ -71,7 +72,10 @@
 
         const res = await fetch(url, {
             method: is_create ? 'POST' : 'PUT',
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken'),
+            },
             credentials: 'same-origin',
             body: JSON.stringify(event)
         })

@@ -5,11 +5,11 @@
     /** @type {{ data: import('./$types').LayoutData, children: import('svelte').Snippet }} */
     let { data, children } = $props();
 
-    if(!store.logged_in) {
+    if(!store.user) {
         goto('/login')
     }
 </script>
 
-{#if store.logged_in}
+{#if store.user}
     {@render children()}
 {/if}

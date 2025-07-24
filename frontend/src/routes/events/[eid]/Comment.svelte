@@ -1,6 +1,7 @@
 <script>
-  import { page } from "$app/state";
-  import { store } from "$lib/store.svelte";
+    import { page } from "$app/state";
+    import { store } from "$lib/store.svelte";
+    import Cookies from "js-cookie"
 
     let { comment } = $props();
 
@@ -17,7 +18,7 @@
             is_upvote = false;
         }
 
-        if(!store.logged_in) {
+        if(!store.user) {
             alert("Login Required !")
             return
         }
@@ -29,7 +30,10 @@
 
         const res = await fetch(`/api/events/${page.params.eid}/comments/${comment.id}/vote/`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken'),
+            },
             body: JSON.stringify({ is_upvote }),
             credentials: 'same-origin',
         })
