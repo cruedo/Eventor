@@ -87,7 +87,7 @@ def logout(req):
     return Response(rsp)
 
 
-
+# TODO: enfore csrf for login view
 class Login(APIView):
     def post(self, req):
         slz = LoginFormSlz(data=req.data)
@@ -205,7 +205,7 @@ class EventView(APIView):
         slz.save()
         return Response(slz.validated_data)
 
-
+from django.db import transaction
 class ParticipantFormSlz(serializers.ModelSerializer):
     class Meta:
         model = Participants
@@ -216,16 +216,24 @@ class ParticipantFormSlz(serializers.ModelSerializer):
         if Participants.objects.filter(user=u, event=vdata['event']).exists():
             raise serializers.ValidationError("The user is already registered for the event")
         
-        participant_count = Participants.objects.filter(event=vdata["event"]).count()
-        if vdata["event"].capacity != None and participant_count >= vdata["event"].capacity:
-            raise serializers.ValidationError("Event cannot accept any more participants, capacity reached")
+        # participant_count = Participants.objects.filter(event=vdata["event"]).count()
+        # if vdata["event"].capacity != None and participant_count >= vdata["event"].capacity:
+        #     raise serializers.ValidationError("Event cannot accept any more participants, capacity reached")
         return vdata
 
 
     def create(self, vdata):
         req = self.context['request']
-        p=Participants(user=req.user, event=vdata['event'])
-        p.save()
+
+        with transaction.atomic():
+            vdata["event"] = Events.objects.select_for_update().get(id = vdata["event"].id)
+
+            participant_count = Participants.objects.filter(event=vdata["event"]).count()
+            if vdata["event"].capacity != None and participant_count >= vdata["event"].capacity:
+                raise serializers.ValidationError("Event cannot accept any more participants, capacity reached")
+
+            p=Participants(user=req.user, event=vdata['event'])
+            p.save()
         return p
 
 class ParticipantsView(APIView):
@@ -317,15 +325,20 @@ class CommentVotesFormSlz(serializers.ModelSerializer):
 
     def validate(self, vdata):
         u = self.context["request"].user
-        if CommentVotes.objects.filter(user=u, comment=vdata["comment"]).exists():
-            raise serializers.ValidationError("Cannot vote more than once on a comment")
+        # if CommentVotes.objects.filter(user=u, comment=vdata["comment"]).exists():
+        #     raise serializers.ValidationError("Cannot vote more than once on a comment")
         return vdata
     
     def create(self, vdata):
         vdata.pop("event")
         u = self.context["request"].user
-        cv = CommentVotes(user=u, **vdata)
-        cv.save()
+
+        with transaction.atomic():
+            if CommentVotes.objects.filter(user=u, comment=vdata["comment"]).exists():
+                raise serializers.ValidationError("Cannot vote more than once on a comment")
+
+            cv = CommentVotes(user=u, **vdata)
+            cv.save()
         return cv
     
 class CommentVotesView(APIView):
